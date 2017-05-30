@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<svg width="960" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var N_NODES=40,
+  N_GROUPS=3,
+  P_IN = 0.8,
+  P_OUT = 0.05,ITER=0
+
+var  nodes = [],
+  links = [];
+
+function random_range(min, max) {
+      return Math.round((Math.random() * (max - min) + min) * 100)/100;
+  }
+
+function random_int(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function gen_nodes(){
+
+    console.log(nodes.length)
+    nodes=[]
+    for(var i=0;i < N_NODES;i++){
+      nodes.push({id:i+(ITER*N_NODES),group:random_int(0,N_GROUPS)})
+    }
+    ITER+=1
+}
+
+function gen_links(){
+  links=[]
+  for(var i=0;i<N_NODES;i++){
+    for(var j=i+1;j<N_NODES;j++){
+      rng = Math.random()
+      if(nodes[i].group==nodes[j].group){
+        if(rng <= P_IN){links.push({source:nodes[i],target:nodes[j]})}}
+      else{
+        if(rng <= P_OUT){links.push({source:nodes[i],target:nodes[j]})}}
+    }
+  }
+}
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height"),
+    color = d3.scaleSequential(d3.interpolateCool);
+
+gen_nodes()
+gen_links()
+
+
+// set up force
+var simulation = d3.forceSimulation(nodes)
+    .force("charge", d3.forceManyBody().strength(-200))
+    .force("link", d3.forceLink(links).distance(100))
+    .force("x", d3.forceX())
+    .force("y", d3.forceY())
+    .alphaTarget(1)
+    .on("tick", ticked);
+
+var g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
+    link = g.append("g").attr("stroke", "#b5b5b5").attr("stroke-width", 1.0).selectAll(".link"),
+    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node")
+
+
+
+
+restart();
+
+d3.interval(function() {
+P_IN = random_range(0.5,1)
+P_OUT = random_range(0,0.3)
+
+gen_nodes()
+gen_links()
+restart();
+
+}, 5000, d3.now());
+
+
+function restart() {
+
+  // Apply the general update pattern to the nodes.
+  node = node.data(nodes, function(d) { return d.id;});
+  node.exit().remove();
+  node = node.enter().append("circle").attr("fill", function(d) { return color(d.group); }).attr("r", 8).merge(node);
+
+
+  // Apply the general update pattern to the links.
+  link = link.data(links, function(d) { return d.source.id + "-" + d.target.id; });
+  link.exit().remove();
+  link = link.enter().append("line").merge(link);
+
+
+
+  // Update and restart the simulation.
+  simulation.nodes(nodes);
+  simulation.force("link").links(links);
+  simulation.alpha(1).restart();
+
+
+  svg.selectAll('text').remove();
+  svg.append("text")
+.style("fill", "black")
+    .attr("x", width)
+    .attr("y", 10)
+    .attr("text-anchor", "end")
+    .style('font-family','sans-serif')
+    .style('font-size','12px')
+    .text("P(Connection Within) = "+P_IN+"; P(Connection Between)="+P_OUT);
+}
+
+function ticked() {
+  node.attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+
+  link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+}
+
+</script>
