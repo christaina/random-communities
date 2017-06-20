@@ -1,0 +1,33 @@
+
+svg {
+border: 1px solid #eee;
+}
+body {
+font: 10px sans-serif;
+}
+circle.node {
+fill: lightsteelblue;
+stroke: #555;
+stroke-width: 3px;
+}
+circle.leaf {
+stroke: #fff;
+stroke-width: 1.5px;
+}
+path.hull {
+fill: lightsteelblue;
+fill-opacity: 0.3;
+}
+line.link {
+stroke: #333;
+stroke-opacity: 0.5;
+pointer-events: none;
+}
+
+body {font-family: monospace; line-height: 160%; font-size: 10px; }
+        ul {list-style: none; margin: 0; padding: 0;}
+        li {display: inline-block; min-width: 5px; padding: 5px; background-color: #eee; margin: 0;}
+        input {border: 1px dotted #ccc; background: white;
+          font-family: monospace; padding: 5px 5px; font-size: 12px; margin: 2px 2px 2px 0; width:80px;
+          color: black}
+        input:focus { background-color:white; outline: none; }
